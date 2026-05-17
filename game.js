@@ -9,14 +9,7 @@ let best = parseInt(localStorage.getItem('flappy_best') || '0');
 let bird, pipes, particles, score, lives, state, frame;
 let level, pipeSpeed, pipeInterval, pipeGap, levelBanner;
 
-// ── Mic State ────────────────────────────────────────────────
-let micActive  = false;
-let analyser   = null;
-let dataArray  = null;
-let micStream  = null;
-let prevVoice  = false;
-let popupDone  = false;          // popup sirf ek baar
-const VOL_THRESHOLD = 18;
+
 
 // ── Audio ────────────────────────────────────────────────────
 let AC = null;
@@ -76,15 +69,7 @@ function initGame() {
   state     = 'start';
   updateHUD();
 
-  // Popup sirf PEHLI baar
-  if (!popupDone) {
-    document.getElementById('micOverlay').classList.remove('hide');
-  } else {
-    document.getElementById('micOverlay').classList.add('hide');
-    document.getElementById('msg').textContent = micActive
-      ? '🎤 Awaaz do — bird upar jayega!'
-      : 'Click / Space / Tap to flap!';
-  }
+  document.getElementById('msg').textContent = 'Click / Space / Tap to flap!';
   spawnPipe();
 }
 
@@ -125,17 +110,6 @@ function spawnParticles(x, y, col) {
 
 // ── Update ───────────────────────────────────────────────────
 function update() {
-  // Voice detection
-  if (micActive && analyser) {
-    analyser.getByteFrequencyData(dataArray);
-    let sum = 0;
-    for (let i=0; i<dataArray.length; i++) sum += dataArray[i];
-    const vol = sum / dataArray.length;
-    const voiceOn = vol > VOL_THRESHOLD;
-    if (voiceOn && !prevVoice) flap();
-    prevVoice = voiceOn;
-  }
-
   if (state !== 'play') return;
   frame++;
 
@@ -276,7 +250,7 @@ function drawStart(){
   ctx.textAlign='center';
   ctx.fillStyle='#fff'; ctx.font='bold 52px sans-serif'; ctx.fillText('Flappy Bird',W/2,H/2-80);
   ctx.font='22px sans-serif'; ctx.fillStyle='#ffe';
-  ctx.fillText(micActive?'🎤 Awaaz do — bird upar jayega!':'Click / Space / Tap to start',W/2,H/2-20);
+  ctx.fillText('Click / Space / Tap to start',W/2,H/2-20);
   ctx.font='16px sans-serif'; ctx.fillStyle='rgba(255,255,255,0.65)';
   ctx.fillText('Har 10 pipes = next level!',W/2,H/2+20);
   if(best>0){ ctx.font='bold 20px sans-serif'; ctx.fillStyle='#FFD700'; ctx.fillText('Best: '+best,W/2,H/2+65); }
@@ -319,78 +293,7 @@ function draw(){
 
 function loop(){ update(); draw(); requestAnimationFrame(loop); }
 
-// ── MIC POPUP FUNCTIONS ──────────────────────────────────────
-function showScr(id){
-  ['scrRequest','scrListening','scrDenied'].forEach(s=>{
-    document.getElementById(s).style.display = s===id?'block':'none';
-  });
-}
 
-async function requestMic(){
-  const btn=document.getElementById('allowBtn');
-  btn.disabled=true; btn.textContent='⏳ Intezaar karo...';
-  try{
-    micStream = await navigator.mediaDevices.getUserMedia({audio:true});
-    const ac  = getAC();
-    const src = ac.createMediaStreamSource(micStream);
-    analyser  = ac.createAnalyser();
-    analyser.fftSize = 256;
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
-    src.connect(analyser);
-    micActive = true;
-    document.getElementById('micEmoji').textContent='✅';
-    document.getElementById('micStatus').textContent='🎤 ON';
-    document.getElementById('micStatus').classList.add('on');
-    showScr('scrListening');
-    runVolMeter();
-  }catch(e){
-    document.getElementById('micEmoji').textContent='❌';
-    showScr('scrDenied');
-    btn.disabled=false; btn.textContent='🎤 Mic Allow Karo';
-  }
-}
-
-function runVolMeter(){
-  function tick(){
-    if(!analyser) return;
-    analyser.getByteFrequencyData(dataArray);
-    let sum=0; for(let i=0;i<dataArray.length;i++) sum+=dataArray[i];
-    const vol=sum/dataArray.length;
-    const pct=Math.min(Math.round(vol*3),100);
-    const loud=vol>VOL_THRESHOLD;
-    document.getElementById('volFill').style.width=pct+'%';
-    document.getElementById('volFill').style.background=loud?'#FFD700':'#43a047';
-    document.getElementById('volPct').textContent=pct+'%';
-    document.getElementById('dot').className='dot '+(loud?'loud':'on');
-    document.getElementById('statusTxt').textContent=loud?'🎤 Awaaz detect! Bird upar!':'Awaaz ka intezaar hai...';
-    requestAnimationFrame(tick);
-  }
-  tick();
-}
-
-function closePopup(){
-  popupDone=true;
-  document.getElementById('micOverlay').classList.add('hide');
-  document.getElementById('msg').textContent='🎤 Awaaz do — bird upar jayega!';
-  if(state==='start'){ state='play'; }
-}
-
-function skipMic(){
-  popupDone=true;
-  document.getElementById('micOverlay').classList.add('hide');
-  document.getElementById('msg').textContent='Click / Space / Tap to flap!';
-}
-
-function stopMicBtn(){
-  if(micStream) micStream.getTracks().forEach(t=>t.stop());
-  micActive=false; analyser=null; micStream=null;
-  document.getElementById('micEmoji').textContent='🎤';
-  document.getElementById('micStatus').textContent='🎤 OFF';
-  document.getElementById('micStatus').classList.remove('on');
-  showScr('scrRequest');
-  const btn=document.getElementById('allowBtn');
-  btn.disabled=false; btn.textContent='🎤 Mic Allow Karo';
-}
 
 // ── Start ────────────────────────────────────────────────────
 initGame();
