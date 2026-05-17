@@ -138,7 +138,7 @@ function flap() {
     document.getElementById('msg').textContent = '';
   }
   if (state === 'play') {
-    bird.vy = -5; bird.flap = 10;
+    bird.vy = -7; bird.flap = 10;
     playFlap();
   }
   if (state === 'dead') {
@@ -177,7 +177,7 @@ function update() {
   if (state !== 'play') return;
   frame++;
 
-  bird.vy  = Math.min(bird.vy + 0.15, 5);
+  bird.vy  = Math.min(bird.vy + 0.28, 9);
   bird.y  += bird.vy;
   bird.rot = Math.max(-25, Math.min(80, bird.vy * 4));
   if (bird.flap > 0) bird.flap--;
@@ -397,3 +397,123 @@ function loop() { update(); draw(); raf = requestAnimationFrame(loop); }
 
 initGame();
 loop();
+
+// ─── MIC PERMISSION SYSTEM ───────────────────────────────────
+let micActive   = false;
+let analyser    = null;
+let dataArray   = null;
+let micStream   = null;
+let prevVoice   = false;
+let micVolume   = 0;
+const THRESHOLD = 18;
+
+function showScreen(id) {
+  ['screen-request','screen-listening','screen-denied'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+}
+
+async function requestMic() {
+  const btn = document.getElementById('allowBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Intezaar karo...';
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const ac  = getAudio();
+    const src = ac.createMediaStreamSource(micStream);
+    analyser  = ac.createAnalyser();
+    analyser.fftSize = 256;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    src.connect(analyser);
+    micActive = true;
+
+    // Mark steps done
+    ['s1','s2','s3'].forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent = '✓';
+      el.classList.add('done');
+    });
+    document.getElementById('micIconWrap').className = 'mic-icon-wrap success';
+    document.getElementById('micEmoji').textContent  = '✅';
+
+    showScreen('screen-listening');
+    startVolumeMeter();
+
+    // Update HUD mic status
+    document.getElementById('mic-status').textContent = '🎤 ON';
+    document.getElementById('mic-status').classList.add('on');
+    document.getElementById('msg').textContent = '🎤 Awaaz do — bird upar jayega!';
+
+  } catch(e) {
+    document.getElementById('micIconWrap').className = 'mic-icon-wrap error';
+    document.getElementById('micEmoji').textContent  = '❌';
+    showScreen('screen-denied');
+    btn.disabled = false;
+    btn.textContent = '🎤 Mic Allow Karo';
+  }
+}
+
+function startVolumeMeter() {
+  function tick() {
+    if (!analyser) return;
+    analyser.getByteFrequencyData(dataArray);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+    micVolume = sum / dataArray.length;
+
+    const pct  = Math.min(Math.round(micVolume * 3), 100);
+    const loud = micVolume > THRESHOLD;
+
+    document.getElementById('volFill').style.width     = pct + '%';
+    document.getElementById('volFill').style.background = loud ? '#FFD700' : '#43a047';
+    document.getElementById('volPct').textContent       = pct + '%';
+    document.getElementById('dot').className            = 'dot ' + (loud ? 'loud' : 'active');
+    document.getElementById('statusTxt').textContent    = loud
+      ? '🎤 Awaaz detect! Bird upar!'
+      : 'Awaaz ka intezaar hai...';
+
+    requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function stopMicPerm() {
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  micActive = false; analyser = null; micStream = null;
+  document.getElementById('micIconWrap').className = 'mic-icon-wrap';
+  document.getElementById('micEmoji').textContent  = '🎤';
+  document.getElementById('mic-status').textContent = '🎤 OFF';
+  document.getElementById('mic-status').classList.remove('on');
+  showScreen('screen-request');
+  const btn = document.getElementById('allowBtn');
+  btn.disabled = false;
+  btn.textContent = '🎤 Mic Allow Karo';
+}
+
+function skipMic() {
+  document.getElementById('mic-overlay').classList.add('hidden');
+  document.getElementById('msg').textContent = 'Click / Space / Tap to flap!';
+}
+
+function closeMicPopup() {
+  document.getElementById('mic-overlay').classList.add('hidden');
+  if (state === 'start') {
+    state = 'play';
+    document.getElementById('msg').textContent = '🎤 Awaaz do — bird upar jayega!';
+  }
+}
+
+// ─── VOICE FLAP IN GAME LOOP ─────────────────────────────────
+const _origUpdate = update;
+update = function() {
+  if (micActive && analyser) {
+    analyser.getByteFrequencyData(dataArray);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+    micVolume = sum / dataArray.length;
+    const voiceOn = micVolume > THRESHOLD;
+    if (voiceOn && !prevVoice) flap();
+    prevVoice = voiceOn;
+  }
+  _origUpdate();
+};
