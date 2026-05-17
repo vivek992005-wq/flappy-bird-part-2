@@ -8,48 +8,6 @@
 </head>
 <body>
 
-  <!-- MIC POPUP -->
-  <div id="micOverlay">
-    <div id="micCard">
-      <div id="micEmoji">🎤</div>
-
-      <div id="scrRequest">
-        <h2>Mic Permission Chahiye!</h2>
-        <p>Bird ko tumhari awaaz sunni hai.<br>Bol "HAA" ya koi awaaz do — bird upar jayega!</p>
-        <div class="steps">
-          <div class="step"><span class="num">1</span> Neeche button dabao</div>
-          <div class="step"><span class="num">2</span> Browser mein <b>Allow</b> dabao</div>
-          <div class="step"><span class="num">3</span> Awaaz do — bird fly karega!</div>
-        </div>
-        <button id="allowBtn" onclick="requestMic()">🎤 Mic Allow Karo</button>
-        <button class="skip" onclick="skipMic()">Abhi Nahi — Click/Space Use Karunga</button>
-      </div>
-
-      <div id="scrListening" style="display:none">
-        <div class="tag">✅ Mic Connected!</div>
-        <h2>Sun Raha Hai!</h2>
-        <p>Koi bhi awaaz do — bird upar jayega!</p>
-        <div class="statusBar">
-          <div class="dot" id="dot"></div>
-          <span id="statusTxt">Awaaz ka intezaar hai...</span>
-        </div>
-        <div class="volWrap">
-          <div class="volLabel"><span>Volume</span><span id="volPct">0%</span></div>
-          <div class="volTrack"><div id="volFill"></div></div>
-        </div>
-        <button onclick="closePopup()">🎮 Game Shuru Karo!</button>
-        <button class="skip" onclick="stopMicBtn()">Mic Band Karo</button>
-      </div>
-
-      <div id="scrDenied" style="display:none">
-        <h2>Permission Nahi Mili 😥</h2>
-        <div class="errBox">Address bar mein 🔒 icon → Microphone → Allow karo → Page reload karo.</div>
-        <button onclick="requestMic()">🔄 Dobara Try Karo</button>
-        <button class="skip" onclick="skipMic()">Click/Space Use Karunga</button>
-      </div>
-    </div>
-  </div>
-
   <!-- GAME -->
   <div id="wrap">
     <canvas id="gc" width="700" height="650"></canvas>
@@ -58,7 +16,6 @@
       <div>Best: <span id="best">0</span></div>
       <div>Level: <span id="lv">1</span></div>
       <div>Lives: <span id="li">3</span></div>
-      <div id="micStatus">🎤 OFF</div>
     </div>
   </div>
   <p id="msg">Loading...</p>
