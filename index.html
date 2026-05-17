@@ -8,55 +8,45 @@
 </head>
 <body>
 
-  <!-- MIC PERMISSION POPUP -->
-  <div id="mic-overlay">
-    <div id="mic-card">
+  <!-- MIC POPUP -->
+  <div id="micOverlay">
+    <div id="micCard">
+      <div id="micEmoji">🎤</div>
 
-      <div class="mic-icon-wrap" id="micIconWrap">
-        <span id="micEmoji">🎤</span>
-      </div>
-
-      <!-- Screen 1: Request -->
-      <div id="screen-request">
+      <div id="scrRequest">
         <h2>Mic Permission Chahiye!</h2>
-        <p class="desc">Bird ko tumhari awaaz sunni hai.<br>Bol "HAA" ya koi awaaz do — bird upar jayega!</p>
+        <p>Bird ko tumhari awaaz sunni hai.<br>Bol "HAA" ya koi awaaz do — bird upar jayega!</p>
         <div class="steps">
-          <div class="step"><div class="step-num" id="s1">1</div><span>Neeche button dabao</span></div>
-          <div class="step"><div class="step-num" id="s2">2</div><span>Browser mein <b>Allow</b> dabao</span></div>
-          <div class="step"><div class="step-num" id="s3">3</div><span>Awaaz do — bird fly karega!</span></div>
+          <div class="step"><span class="num">1</span> Neeche button dabao</div>
+          <div class="step"><span class="num">2</span> Browser mein <b>Allow</b> dabao</div>
+          <div class="step"><span class="num">3</span> Awaaz do — bird fly karega!</div>
         </div>
-        <button class="btn-primary" id="allowBtn" onclick="requestMic()">🎤 Mic Allow Karo</button>
-        <button class="btn-secondary" onclick="skipMic()">Abhi Nahi — Click/Space Use Karunga</button>
+        <button id="allowBtn" onclick="requestMic()">🎤 Mic Allow Karo</button>
+        <button class="skip" onclick="skipMic()">Abhi Nahi — Click/Space Use Karunga</button>
       </div>
 
-      <!-- Screen 2: Listening -->
-      <div id="screen-listening" style="display:none">
-        <div class="mic-tag">✅ Mic Connected!</div>
+      <div id="scrListening" style="display:none">
+        <div class="tag">✅ Mic Connected!</div>
         <h2>Sun Raha Hai!</h2>
-        <p class="desc">Bol "HAA", clap karo, ya koi awaaz do.<br>Bird upar jayega!</p>
-        <div class="status-bar">
+        <p>Koi bhi awaaz do — bird upar jayega!</p>
+        <div class="statusBar">
           <div class="dot" id="dot"></div>
           <span id="statusTxt">Awaaz ka intezaar hai...</span>
         </div>
-        <div class="vol-wrap">
-          <div class="vol-label"><span>Volume</span><span id="volPct">0%</span></div>
-          <div class="vol-track"><div class="vol-fill" id="volFill"></div></div>
+        <div class="volWrap">
+          <div class="volLabel"><span>Volume</span><span id="volPct">0%</span></div>
+          <div class="volTrack"><div id="volFill"></div></div>
         </div>
-        <button class="btn-primary" onclick="closeMicPopup()">🎮 Game Shuru Karo!</button>
-        <button class="btn-secondary" onclick="stopMicPerm()">Mic Band Karo</button>
+        <button onclick="closePopup()">🎮 Game Shuru Karo!</button>
+        <button class="skip" onclick="stopMicBtn()">Mic Band Karo</button>
       </div>
 
-      <!-- Screen 3: Denied -->
-      <div id="screen-denied" style="display:none">
+      <div id="scrDenied" style="display:none">
         <h2>Permission Nahi Mili 😥</h2>
-        <div class="error-box">
-          <b>Browser ne block kar diya.</b><br><br>
-          Fix karo: Address bar mein 🔒 lock icon pe click karo → Microphone → Allow → Page reload karo.
-        </div>
-        <button class="btn-primary" onclick="requestMic()">🔄 Dobara Try Karo</button>
-        <button class="btn-secondary" onclick="skipMic()">Click/Space Use Karunga</button>
+        <div class="errBox">Address bar mein 🔒 icon → Microphone → Allow karo → Page reload karo.</div>
+        <button onclick="requestMic()">🔄 Dobara Try Karo</button>
+        <button class="skip" onclick="skipMic()">Click/Space Use Karunga</button>
       </div>
-
     </div>
   </div>
 
@@ -68,7 +58,7 @@
       <div>Best: <span id="best">0</span></div>
       <div>Level: <span id="lv">1</span></div>
       <div>Lives: <span id="li">3</span></div>
-      <div id="mic-status">🎤 <span id="mic-label">OFF</span></div>
+      <div id="micStatus">🎤 OFF</div>
     </div>
   </div>
   <p id="msg">Loading...</p>
