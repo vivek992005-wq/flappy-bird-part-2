@@ -93,6 +93,8 @@ function updateLevelDisplay() {
 }
 
 // ─── Init ────────────────────────────────────────────────────
+let micPopupShown = false;
+
 function initGame() {
   level       = 1;
   levelBanner = 0;
@@ -105,7 +107,18 @@ function initGame() {
   frame       = 0;
   state       = 'start';
   updateLevelDisplay();
-  document.getElementById('msg').textContent = 'Click / Space / Tap to flap!';
+
+  // Mic popup sirf PEHLI baar dikhao — restart pe nahi
+  if (!micPopupShown) {
+    micPopupShown = true;
+    document.getElementById('mic-overlay').classList.remove('hidden');
+  } else {
+    document.getElementById('mic-overlay').classList.add('hidden');
+  }
+
+  document.getElementById('msg').textContent = micActive
+    ? '🎤 Awaaz do — bird upar jayega!'
+    : 'Click / Space / Tap to flap!';
   spawnPipe();
 }
 
