@@ -1,55 +1,218 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
+  font-family: sans-serif;
   background: #1a1a2e;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   min-height: 100vh;
-  font-family: sans-serif;
 }
 
+/* ── MIC OVERLAY ───────────────────────────────── */
+#mic-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+#mic-overlay.hidden { display: none; }
+
+#mic-card {
+  background: #16213e;
+  border: 1px solid #ffffff22;
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  color: #fff;
+}
+
+.mic-icon-wrap {
+  font-size: 52px;
+  margin-bottom: 1rem;
+  animation: bounce 1.2s infinite;
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.mic-icon-wrap.success { animation: none; }
+.mic-icon-wrap.error   { animation: none; }
+
+#mic-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.desc {
+  font-size: 14px;
+  color: #aaa;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+.steps {
+  text-align: left;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #ccc;
+}
+.step-num {
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffffff15;
+  border: 1px solid #ffffff22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+.step-num.done { background: #43a04722; border-color: #43a047; color: #43a047; }
+
+.btn-primary {
+  width: 100%;
+  padding: 11px;
+  background: #43a047;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: background 0.2s;
+}
+.btn-primary:hover   { background: #388e3c; }
+.btn-primary:disabled { background: #555; cursor: not-allowed; }
+
+.btn-secondary {
+  width: 100%;
+  padding: 9px;
+  background: transparent;
+  color: #aaa;
+  border: 1px solid #ffffff22;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-secondary:hover { background: #ffffff11; }
+
+.mic-tag {
+  display: inline-block;
+  background: #43a04722;
+  color: #43a047;
+  border: 1px solid #43a047;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #ffffff0a;
+  border: 1px solid #ffffff15;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  font-size: 13px;
+  color: #aaa;
+}
+.dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #555;
+  flex-shrink: 0;
+}
+.dot.active  { background: #43a047; animation: blink 1s infinite; }
+.dot.loud    { background: #FFD700; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.vol-wrap { margin-bottom: 1.25rem; }
+.vol-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 6px;
+}
+.vol-track {
+  height: 10px;
+  background: #ffffff15;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.vol-fill {
+  height: 100%;
+  width: 0%;
+  background: #43a047;
+  border-radius: 5px;
+  transition: width 0.06s;
+}
+
+.error-box {
+  background: #ff444422;
+  border: 1px solid #ff4444;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #ff8888;
+  margin-bottom: 1.25rem;
+  text-align: left;
+  line-height: 1.6;
+}
+
+/* ── GAME ──────────────────────────────────────── */
 #wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
 #gc {
   display: block;
   cursor: pointer;
   border-radius: 12px 12px 0 0;
   border: 2px solid #ffffff22;
 }
-
 #hud {
   width: 700px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px;
+  padding: 10px 20px;
   background: #16213e;
   border: 2px solid #ffffff22;
   border-top: none;
   border-radius: 0 0 12px 12px;
-  font-size: 13px;
-  color: #aaaaaa;
+  font-size: 14px;
+  color: #aaa;
 }
-
-#hud span {
-  font-weight: 600;
-  color: #ffffff;
-  font-size: 15px;
-}
+#hud span { font-weight: 600; color: #fff; font-size: 16px; }
+#mic-status { font-size: 13px; color: #888; }
+#mic-status.on { color: #43a047; }
 
 #msg {
   margin-top: 12px;
   font-size: 13px;
-  color: #888888;
+  color: #888;
   text-align: center;
 }
